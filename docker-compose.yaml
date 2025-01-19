@@ -1,5 +1,6 @@
 services:
   c-chain-indexer-db:
+    restart: unless-stopped
     profiles: [fsp, ftso, fdc, indexer]
     image: "mysql"
     environment:
@@ -13,18 +14,19 @@ services:
       retries: 10
 
   c-chain-indexer:
+    restart: unless-stopped
     profiles: [fsp, ftso, fdc, indexer]
-    image: ghcr.io/flare-foundation/flare-system-c-chain-indexer:latest
+    image: ghcr.io/flare-foundation/flare-system-c-chain-indexer:v1.0.0
     volumes:
       - ./mounts/c-chain-indexer/config.toml:/app/config.toml
-    restart: unless-stopped
     depends_on:
       c-chain-indexer-db:
         condition: service_healthy
 
   system-client:
+    restart: unless-stopped
     profiles: [fsp, system-client]
-    image: ghcr.io/flare-foundation/flare-system-client:latest
+    image: ghcr.io/flare-foundation/flare-system-client:v1.0.1
     volumes:
       - ./mounts/system-client/config.toml:/app/config.toml
     environment:
@@ -32,18 +34,17 @@ services:
       SIGNING_POLICY_PRIVATE_KEY: ${SIGNING_PK}
       PROTOCOL_MANAGER_SUBMIT_PRIVATE_KEY: ${SUBMIT_PK}
       PROTOCOL_MANAGER_SUBMIT_SIGNATURES_PRIVATE_KEY: ${SIGNATURES_PK}
-      PROTOCOL_X_API_KEY_100: "abcdef"
-      PROTOCOL_X_API_KEY_200: "abcdef"
+      PROTOCOL_X_API_KEY_100: ${PROTOCOL_X_API_KEY_100}
+      PROTOCOL_X_API_KEY_200: ${PROTOCOL_X_API_KEY_200}
     # NOTE: Voting round 90s + reveal deadline 45s
     stop_grace_period: 135s 
     depends_on:
       - c-chain-indexer
-      - ftso-client
-      - fdc-client
 
   ftso-client:
+    restart: unless-stopped
     profiles: [fsp, ftso]
-    image: ghcr.io/flare-foundation/ftso-scaling:latest
+    image: ghcr.io/flare-foundation/ftso-scaling:v1.0.2
     env_file:
       - ./mounts/ftso-client/.env
     command: "node dist/apps/ftso-data-provider/apps/ftso-data-provider/src/main.js"
@@ -53,8 +54,9 @@ services:
       - c-chain-indexer
 
   fdc-client:
+    restart: unless-stopped
     profiles: [fsp, fdc]
-    image: ghcr.io/flare-foundation/fdc-client:latest
+    image: ghcr.io/flare-foundation/fdc-client:v1.0.2
     volumes:
       - ./mounts/fdc-client/config.toml:/app/configs/userConfig.toml
     depends_on:
@@ -63,8 +65,9 @@ services:
     stop_grace_period: 135s 
 
   fast-updates:
+    restart: unless-stopped
     profiles: [fast-updates]
-    image: ghcr.io/flare-foundation/fast-updates/go-client:latest
+    image: ghcr.io/flare-foundation/fast-updates/go-client:v1.0.0
     volumes:
       - ./mounts/fast-updates/config.toml:/app/config.toml
     environment:
@@ -74,17 +77,17 @@ services:
     depends_on:
       - c-chain-indexer
 
-  # feed-value-provider:
-  #   profiles: [fsp, ftso, fdc]
-  #   # container_name: ${COMPOSE_PROJECT_NAME}-feed-value-provider
-  #   image: ghcr.io/flare-foundation/ftso-v2-example-value-provider:latest
+  feed-value-provider:
+    profiles: [fsp, ftso, fdc]
+    # container_name: ${COMPOSE_PROJECT_NAME}-feed-value-provider
+    image: ghcr.io/flare-foundation/ftso-v2-example-value-provider:latest
   #   environment:
   #     # VALUE_PROVIDER_IMPL: "fixed"
   #     VALUE_PROVIDER_IMPL: "fixed"
-  #   ports:
-  #     - "3101:3101"
-  #   depends_on:
-  #     - c-chain-indexer
+    ports:
+      - "3101:3101"
+    depends_on:
+      - c-chain-indexer
 
 volumes:
   indexer_data:

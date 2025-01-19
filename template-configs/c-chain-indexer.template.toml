@@ -78,6 +78,7 @@ password = "root"
 log_queries = false
 drop_table_at_start = false
 history_drop = 3628800 # 42 days
+#history_drop = 1036800 # 12 days
 
 [logger]
 level = "INFO"
