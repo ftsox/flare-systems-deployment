@@ -9,3 +9,4 @@ mounts/
 # MCZ added for local files with keys
 .env-*
 sortition_keys.json
+local/
