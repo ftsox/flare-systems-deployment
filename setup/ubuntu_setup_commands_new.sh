@@ -56,8 +56,10 @@ cd flare-systems-deployment/
 # Set up .env file
 nano .env
 # copy in file
+## For FDC env variables, reference this comment: https://t.me/c/1579581607/77778
 
-# if applicable, modify docker compose file to include the feed value provider
+# if applicable, modify docker compose file to include the feed value provider (see this local repo for example)
+nano docker-compose.yaml
 
 # populate configs
 ./populate_config.sh
@@ -70,8 +72,8 @@ sudo docker compose ps  # should show 6 containers running, one for each in dock
 sudo docker compose ls
 sudo docker compose logs
 sudo docker logs ftso-v2-deployment-client 
-# sudo docker compose logs --follow --tail 100 flare-systems-deployment-ftso-client-1
-# sudo docker logs --follow --tail 100 flare-systems-deployment-ftso-client-1
+# docker compose logs --follow --tail 100 flare-systems-deployment-ftso-client-1
+# docker logs --follow --tail 100 flare-systems-deployment-system-client-1
   # flare-systems-deployment-system-client-1
   # flare-systems-deployment-feed-value-provider-1
   # flare-systems-deployment-ftso-client-1
